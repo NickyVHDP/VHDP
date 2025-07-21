@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <!-- Fullscreen Intro Overlay -->
   <div id="intro-overlay">
     <div class="intro-text">
@@ -17,7 +18,7 @@
   </div>
 
   <!-- Main Content -->
-  <div class="container" id="main-content">
+  <div class="container" id="main-content" style="display:none;">
     <h1>Verizon Home Device Protect</h1>
 
     <section class="category">
@@ -50,7 +51,7 @@
 
     <div class="cta">
       <p>Ready to protect your tech? Contact:</p>
-      <strong>Nicky McCracken<br /><a href="tel:2106431578" style="color:#0033cc;">210-643-1578</a></strong>
+      <strong>Nicky McCracken<br /><a href="tel:2106431578">210-643-1578</a></strong>
     </div>
 
     <!-- Claim Process Section -->
@@ -90,6 +91,22 @@
       </div>
     </section>
 
+  </div>
+
+  <!-- Modal 1: Initial info popup -->
+  <div id="info-modal" class="modal">
+    <div class="modal-content">
+      <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
+      <button id="modal-ok-btn">OK</button>
+    </div>
+  </div>
+
+  <!-- Modal 2: Scroll popup -->
+  <div id="scroll-modal" class="modal">
+    <div class="modal-content">
+      <p>You will NEVER need to show receipts or proof of purchase anytime you need to make a claim</p>
+      <button id="scroll-modal-ok-btn">OK</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
