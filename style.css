@@ -139,7 +139,7 @@ h1 {
 #intro-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: #fff;
+  background: white;  /* solid white background to fully block */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -148,6 +148,8 @@ h1 {
   transition: opacity 0.5s ease, visibility 0.5s ease;
   opacity: 1;
   visibility: visible;
+  padding: 20px;
+  box-sizing: border-box;
 }
 #intro-overlay.hidden {
   opacity: 0;
@@ -155,15 +157,17 @@ h1 {
   pointer-events: none;
 }
 .intro-text {
+  background: white;
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(217, 0, 45, 0.3);
+  max-width: 360px;
+  width: 100%;
   text-align: center;
   font-size: 1.6rem;
   color: #d9002d;
-  max-width: 320px;
   user-select: none;
-  padding: 20px;
-  box-shadow: 0 0 15px rgba(217,0,45,0.3);
-  border-radius: 12px;
-  background: #fff;
+  z-index: 100001;
 }
 #down-arrow {
   font-size: 3.5rem;
@@ -185,12 +189,8 @@ h1 {
   animation: pulse 2s infinite;
 }
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 /* Claim Process Section */
 .claim-process {
