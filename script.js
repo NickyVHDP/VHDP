@@ -183,12 +183,12 @@ nextBtn.addEventListener("click", () => {
 
 updateSteps();
 
-// Set real claim step images
+// Set real claim step images with correct filenames
 const claimStepImages = [
-  "step1.jpg",
-  "step2.jpg",
-  "step3.jpg",
-  "step4.jpg"
+  "step1.PNG",
+  "step2.PNG",
+  "step3.PNG",
+  "step4.PNG"
 ];
 
 steps.forEach((step, index) => {
