@@ -215,41 +215,44 @@ h1 {
 }
 .steps-container {
   position: relative;
-  overflow: visible;
-  padding: 10px 15px;
+  overflow: visible !important;
+  padding: 20px 15px;
+  min-height: auto !important;
+  max-height: none !important;
 }
 .step {
-  position: static;
+  position: static !important;
+  display: block !important;
   opacity: 1 !important;
-  pointer-events: auto;
-  display: block;
+  pointer-events: auto !important;
   text-align: center;
-  padding: 10px 15px;
+  padding: 15px 20px;
   max-height: none !important;
   overflow: visible !important;
 }
 .step:not(.active) {
-  display: none;
+  display: none !important;
 }
 .step img {
   width: 100%;
   max-width: 320px;
   height: auto;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .step h3 {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: #d9002d;
 }
 .step p {
   font-size: 1rem;
   color: #555;
   line-height: 1.6;
-  word-wrap: break-word;
   white-space: normal;
-  margin-bottom: 20px;
+  word-wrap: break-word;
+  margin-bottom: 25px;
+  padding: 0 10px;
 }
 /* Step buttons */
 .step-controls {
@@ -292,6 +295,6 @@ h1 {
     padding: 0 10px;
   }
   .steps-container {
-    padding: 5px 10px;
+    padding: 10px 10px;
   }
 }
