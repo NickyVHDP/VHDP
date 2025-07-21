@@ -288,14 +288,14 @@ h1 {
   margin-bottom: 30px;
 }
 
-/* Updated Steps Container: Removed fixed height */
+/* Updated Steps container */
 .steps-container {
   position: relative;
-  /* height: 280px;  Removed fixed height */
+  /* removed fixed height */
   overflow: visible;
+  padding-bottom: 60px; /* space for buttons */
 }
 
-/* Updated Step styling */
 .step {
   position: relative; /* changed from absolute */
   opacity: 1; /* always visible */
@@ -305,18 +305,18 @@ h1 {
   align-items: center;
   text-align: center;
   padding: 0 15px;
-  margin-bottom: 30px; /* spacing between steps */
-  transition: none; /* disable opacity transition */
+  margin-bottom: 20px;
+  transition: none;
 }
 
 .step.active {
-  display: flex; /* show only active step */
+  display: flex; /* show active */
 }
 
 .step img {
-  width: 100%; /* full width */
-  max-width: 320px; /* max width */
-  height: auto; /* preserve aspect ratio */
+  width: 300px;
+  height: 180px;
+  object-fit: contain;
   margin-bottom: 15px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -338,10 +338,12 @@ h1 {
 
 /* Step navigation buttons */
 .step-controls {
+  position: relative;
+  z-index: 10;
+  margin-top: 10px;
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 20px;
 }
 
 .step-controls button {
