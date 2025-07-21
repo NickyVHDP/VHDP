@@ -50,167 +50,8 @@ const items = [
   { id: "0-23", name: "Smart Pulse Oximeters", fee: 0, cost: 150, icon: "🩸" },
 ];
 
-// Modal popup state
-let popupShown = false;
-
-// Intro overlay and main content elements
-const introOverlay = document.getElementById("intro-overlay");
-const mainContent = document.getElementById("main-content");
-
-// Disable scrolling initially and hide main content
-mainContent.style.display = "none";
-document.body.style.overflow = "hidden";
-
-function hideIntro() {
-  if (!introOverlay.classList.contains("hidden")) {
-    introOverlay.classList.add("hidden");
-    mainContent.style.display = "block";
-    introOverlay.addEventListener(
-      "transitionend",
-      () => {
-        document.body.style.overflow = "auto";
-      },
-      { once: true }
-    );
-    removeIntroListeners();
-  }
-}
-
-function removeIntroListeners() {
-  window.removeEventListener("click", onFirstInteraction);
-  window.removeEventListener("touchstart", onFirstInteraction);
-  window.removeEventListener("keydown", onFirstInteraction);
-  window.removeEventListener("wheel", onFirstInteraction);
-}
-
-function onFirstInteraction() {
-  hideIntro();
-}
-
-window.addEventListener("click", onFirstInteraction, { once: true, passive: true });
-window.addEventListener("touchstart", onFirstInteraction, { once: true, passive: true });
-window.addEventListener("keydown", onFirstInteraction, { once: true, passive: true });
-window.addEventListener("wheel", onFirstInteraction, { once: true, passive: true });
-
-// Create tile for each item with quantity controls
-function createTile(item) {
-  const div = document.createElement("div");
-  div.className = "tile";
-  div.dataset.cost = item.cost;
-  div.dataset.id = item.id;
-  div.title = item.name;
-  div.tabIndex = 0;
-
-  const iconSpan = document.createElement("span");
-  iconSpan.textContent = item.icon;
-  iconSpan.style.fontSize = "36px";
-  iconSpan.style.display = "block";
-  iconSpan.style.marginBottom = "8px";
-
-  const nameSpan = document.createElement("span");
-  nameSpan.textContent = item.name;
-
-  // Quantity controls container
-  const quantityControls = document.createElement("div");
-  quantityControls.className = "quantity-controls";
-
-  const minusBtn = document.createElement("button");
-  minusBtn.type = "button";
-  minusBtn.textContent = "−"; // minus sign
-  const plusBtn = document.createElement("button");
-  plusBtn.type = "button";
-  plusBtn.textContent = "+";
-
-  const quantityValue = document.createElement("span");
-  quantityValue.className = "quantity-value";
-  quantityValue.textContent = "0";
-
-  quantityControls.appendChild(minusBtn);
-  quantityControls.appendChild(quantityValue);
-  quantityControls.appendChild(plusBtn);
-
-  div.appendChild(iconSpan);
-  div.appendChild(nameSpan);
-  div.appendChild(quantityControls);
-
-  // Handle quantity increment/decrement
-  minusBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    let qty = parseInt(quantityValue.textContent, 10);
-    if (qty > 0) qty--;
-    quantityValue.textContent = qty;
-    if (qty === 0) div.classList.remove("selected");
-    else div.classList.add("selected");
-    updateTotal();
-  });
-
-  plusBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    let qty = parseInt(quantityValue.textContent, 10);
-    qty++;
-    quantityValue.textContent = qty;
-    if (qty > 0) div.classList.add("selected");
-    updateTotal();
-  });
-
-  // Also toggle selection on tile click: add 1 if currently 0, else remove all
-  div.addEventListener("click", () => {
-    let qty = parseInt(quantityValue.textContent, 10);
-    if (qty === 0) {
-      quantityValue.textContent = "1";
-      div.classList.add("selected");
-    } else {
-      quantityValue.textContent = "0";
-      div.classList.remove("selected");
-    }
-    updateTotal();
-  });
-
-  // Keyboard support for accessibility
-  div.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      let qty = parseInt(quantityValue.textContent, 10);
-      if (qty === 0) {
-        quantityValue.textContent = "1";
-        div.classList.add("selected");
-      } else {
-        quantityValue.textContent = "0";
-        div.classList.remove("selected");
-      }
-      updateTotal();
-    }
-  });
-
-  return div;
-}
-
-// Update total cost based on quantities
-function updateTotal() {
-  const tiles = document.querySelectorAll(".tile");
-  let total = 0;
-  tiles.forEach((tile) => {
-    if (tile.classList.contains("selected")) {
-      const qty = parseInt(tile.querySelector(".quantity-value").textContent, 10);
-      const cost = parseInt(tile.dataset.cost, 10);
-      total += qty * cost;
-    }
-  });
-  document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
-
-  // Show or hide claim section depending on total
-  const claimSection = document.getElementById("claim-process");
-  if (total > 0) {
-    claimSection.classList.remove("hidden");
-  } else {
-    claimSection.classList.add("hidden");
-  }
-
-  // Show modal once on first selection
-  tryShowPopup();
-}
-
 // Modal popup setup for first selection
+let popupShown = false;
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.id = "info-modal";
@@ -228,17 +69,170 @@ modalOkBtn.addEventListener("click", () => {
   popupShown = true;
 });
 
+// Scroll modal popup for "never need receipts"
+let scrollModalShown = false;
+const scrollModal = document.createElement("div");
+scrollModal.className = "modal";
+scrollModal.id = "scroll-modal";
+scrollModal.innerHTML = `
+  <div class="modal-content">
+    <p>You will NEVER need to show receipts or proof of purchase anytime you need to make a claim</p>
+    <button id="scroll-modal-ok-btn">OK</button>
+  </div>
+`;
+document.body.appendChild(scrollModal);
+
+const scrollModalOkBtn = document.getElementById("scroll-modal-ok-btn");
+scrollModalOkBtn.addEventListener("click", () => {
+  scrollModal.classList.remove("show");
+});
+
+window.addEventListener("scroll", () => {
+  const scrollPosition = window.scrollY + window.innerHeight;
+  const pageHeight = document.documentElement.scrollHeight;
+
+  if (!scrollModalShown && scrollPosition >= pageHeight - 50) {
+    scrollModal.classList.add("show");
+    scrollModalShown = true;
+  }
+});
+
+// Create tile element for each item with quantity controls
+function createTile(item) {
+  const div = document.createElement("div");
+  div.className = "tile";
+  div.dataset.cost = item.cost;
+  div.dataset.id = item.id;
+  div.title = item.name;
+  div.tabIndex = 0;
+
+  // Icon
+  const iconSpan = document.createElement("span");
+  iconSpan.textContent = item.icon;
+  iconSpan.style.fontSize = "36px";
+  iconSpan.style.display = "block";
+  iconSpan.style.marginBottom = "8px";
+
+  // Name
+  const nameSpan = document.createElement("span");
+  nameSpan.textContent = item.name;
+
+  // Quantity controls container
+  const qtyControls = document.createElement("div");
+  qtyControls.className = "qty-controls";
+  qtyControls.style.marginTop = "10px";
+  qtyControls.style.display = "flex";
+  qtyControls.style.justifyContent = "center";
+  qtyControls.style.alignItems = "center";
+  qtyControls.style.gap = "10px";
+
+  const minusBtn = document.createElement("button");
+  minusBtn.textContent = "−"; // minus sign
+  minusBtn.setAttribute("aria-label", `Decrease quantity for ${item.name}`);
+  minusBtn.style.cursor = "pointer";
+
+  const qtyDisplay = document.createElement("span");
+  qtyDisplay.textContent = "0";
+  qtyDisplay.style.minWidth = "20px";
+  qtyDisplay.style.textAlign = "center";
+  qtyDisplay.style.fontWeight = "600";
+
+  const plusBtn = document.createElement("button");
+  plusBtn.textContent = "+"; 
+  plusBtn.setAttribute("aria-label", `Increase quantity for ${item.name}`);
+  plusBtn.style.cursor = "pointer";
+
+  qtyControls.appendChild(minusBtn);
+  qtyControls.appendChild(qtyDisplay);
+  qtyControls.appendChild(plusBtn);
+
+  div.appendChild(iconSpan);
+  div.appendChild(nameSpan);
+  div.appendChild(qtyControls);
+
+  // Track quantity internally
+  let quantity = 0;
+
+  // Update selection style based on quantity
+  function updateSelection() {
+    if (quantity > 0) {
+      div.classList.add("selected");
+    } else {
+      div.classList.remove("selected");
+    }
+  }
+
+  // Plus button increases quantity
+  plusBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    quantity++;
+    qtyDisplay.textContent = quantity;
+    updateSelection();
+    updateTotal();
+    tryShowPopup();
+  });
+
+  // Minus button decreases quantity (min 0)
+  minusBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (quantity > 0) {
+      quantity--;
+      qtyDisplay.textContent = quantity;
+      updateSelection();
+      updateTotal();
+    }
+  });
+
+  // Keyboard support: allow space/enter to toggle selection and increase quantity by 1
+  div.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      quantity++;
+      qtyDisplay.textContent = quantity;
+      updateSelection();
+      updateTotal();
+      tryShowPopup();
+    }
+  });
+
+  return div;
+}
+
+function updateTotal() {
+  let total = 0;
+  const selectedTiles = document.querySelectorAll(".tile.selected");
+
+  selectedTiles.forEach((tile) => {
+    const cost = parseInt(tile.dataset.cost, 10);
+    const qty = parseInt(tile.querySelector(".qty-controls span").textContent, 10) || 0;
+    total += cost * qty;
+  });
+
+  document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
+
+  const claimSection = document.getElementById("claim-process");
+  if (total > 0) {
+    claimSection.classList.remove("hidden");
+  } else {
+    claimSection.classList.add("hidden");
+  }
+}
+
 function tryShowPopup() {
   if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
     modal.classList.add("show");
   }
 }
 
-// Render all items in correct containers
 function renderTiles() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
   const fee0Container = document.getElementById("fee-0");
+
+  // Clear existing tiles before render (if any)
+  fee99Container.innerHTML = "";
+  fee49Container.innerHTML = "";
+  fee0Container.innerHTML = "";
 
   items.forEach((item) => {
     const tile = createTile(item);
@@ -248,59 +242,27 @@ function renderTiles() {
   });
 }
 
-// Scroll modal popup HTML
-const scrollModalHTML = `
-  <div id="scroll-modal" class="modal">
-    <div class="modal-content">
-      <p>You will NEVER need to show receipts or proof of purchase anytime you need to make a claim.</p>
-      <button id="scroll-modal-ok-btn">OK</button>
-    </div>
-  </div>
-`;
-document.body.insertAdjacentHTML('beforeend', scrollModalHTML);
+// Intro overlay handlers
+const introOverlay = document.getElementById("intro-overlay");
+const mainContent = document.getElementById("main-content");
 
-const scrollModal = document.getElementById('scroll-modal');
-const scrollModalOkBtn = document.getElementById('scroll-modal-ok-btn');
-
-let scrollModalShown = false;
-
-scrollModalOkBtn.addEventListener('click', () => {
-  scrollModal.classList.remove('show');
+let touchStartY = 0;
+introOverlay.addEventListener("touchstart", (e) => {
+  touchStartY = e.touches[0].clientY;
+});
+introOverlay.addEventListener("touchmove", (e) => {
+  const currentY = e.touches[0].clientY;
+  if (touchStartY - currentY > 50) {
+    introOverlay.classList.add("hidden");
+    mainContent.style.display = "block";
+  }
+});
+introOverlay.addEventListener("click", () => {
+  introOverlay.classList.add("hidden");
+  mainContent.style.display = "block";
 });
 
-function checkScrollPosition() {
-  const scrollPosition = window.scrollY + window.innerHeight;
-  const pageHeight = document.documentElement.scrollHeight;
-
-  if (!scrollModalShown && scrollPosition >= pageHeight - 150) {
-    scrollModal.classList.add('show');
-    scrollModalShown = true;
-    removeScrollListeners();
-  }
-}
-
-function removeScrollListeners() {
-  window.removeEventListener('scroll', onScrollOrTouch);
-  window.removeEventListener('touchmove', onScrollOrTouch);
-}
-
-function onScrollOrTouch() {
-  checkScrollPosition();
-}
-
-window.addEventListener('scroll', onScrollOrTouch, { passive: true });
-window.addEventListener('touchmove', onScrollOrTouch, { passive: true });
-
-// Fallback: show popup after 8 seconds if user hasn't scrolled near bottom yet
-setTimeout(() => {
-  if (!scrollModalShown) {
-    scrollModal.classList.add('show');
-    scrollModalShown = true;
-    removeScrollListeners();
-  }
-}, 8000);
-
-// Claim step navigation
+// Step-by-step claim navigation
 const claimSection = document.getElementById("claim-process");
 const steps = claimSection.querySelectorAll(".step");
 const prevBtn = document.getElementById("prev-step");
@@ -321,6 +283,7 @@ prevBtn.addEventListener("click", () => {
     updateSteps();
   }
 });
+
 nextBtn.addEventListener("click", () => {
   if (currentStep < steps.length - 1) {
     currentStep++;
@@ -328,16 +291,13 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
-// Hide claim section initially
-claimSection.classList.add("hidden");
 updateSteps();
 
-// Initialize app
+// Initialization on page load
 function init() {
   renderTiles();
   updateTotal();
-  // Hide main content initially behind intro overlay
-  mainContent.style.display = "none";
+  mainContent.style.display = "none"; // Hide main content initially behind intro overlay
 }
 
 window.onload = init;
