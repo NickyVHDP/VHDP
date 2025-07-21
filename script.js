@@ -50,7 +50,7 @@ const items = [
   { id: "0-23", name: "Smart Pulse Oximeters", fee: 0, cost: 150, icon: "🩸" },
 ];
 
-// Create tile with quantity controls
+// Create tile with quantity controls & improved mobile support
 function createTile(item) {
   const div = document.createElement("div");
   div.className = "tile";
@@ -68,22 +68,18 @@ function createTile(item) {
   const nameSpan = document.createElement("span");
   nameSpan.textContent = item.name;
 
-  // Quantity Controls container
   const qtyControls = document.createElement("div");
   qtyControls.className = "quantity-controls";
 
-  // Minus button
   const minusBtn = document.createElement("button");
   minusBtn.className = "quantity-minus";
   minusBtn.setAttribute("aria-label", `Decrease quantity for ${item.name}`);
   minusBtn.textContent = "−";
 
-  // Quantity display
   const qtyValue = document.createElement("span");
   qtyValue.className = "quantity-value";
   qtyValue.textContent = "0";
 
-  // Plus button
   const plusBtn = document.createElement("button");
   plusBtn.className = "quantity-plus";
   plusBtn.setAttribute("aria-label", `Increase quantity for ${item.name}`);
@@ -97,47 +93,34 @@ function createTile(item) {
   div.appendChild(nameSpan);
   div.appendChild(qtyControls);
 
-  // Start quantity at 0
   let quantity = 0;
 
-  // Update visual and total cost on quantity change
   function updateQuantity(newQty) {
     quantity = Math.max(0, newQty);
     qtyValue.textContent = quantity;
-    if (quantity > 0) {
-      div.classList.add("selected");
-    } else {
-      div.classList.remove("selected");
-    }
+    if (quantity > 0) div.classList.add("selected");
+    else div.classList.remove("selected");
     updateTotal();
   }
 
-  // Plus button click
-  plusBtn.addEventListener("click", () => {
-    updateQuantity(quantity + 1);
-  });
+  // Add click & touchend handlers for Safari mobile
+  plusBtn.addEventListener("click", () => updateQuantity(quantity + 1));
+  plusBtn.addEventListener("touchend", (e) => { e.preventDefault(); updateQuantity(quantity + 1); });
 
-  // Minus button click
-  minusBtn.addEventListener("click", () => {
-    updateQuantity(quantity - 1);
-  });
+  minusBtn.addEventListener("click", () => updateQuantity(quantity - 1));
+  minusBtn.addEventListener("touchend", (e) => { e.preventDefault(); updateQuantity(quantity - 1); });
 
-  // Keyboard accessibility: Enter or Space toggles quantity between 0 and 1
   div.addEventListener("keydown", (e) => {
+    if (e.target.tagName === 'BUTTON') return; // Ignore if focus is on buttons
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (quantity === 0) {
-        updateQuantity(1);
-      } else {
-        updateQuantity(0);
-      }
+      updateQuantity(quantity === 0 ? 1 : 0);
     }
   });
 
   return div;
 }
 
-// Update total cost based on quantities:
 function updateTotal() {
   const tiles = document.querySelectorAll(".tile");
   let total = 0;
@@ -149,16 +132,11 @@ function updateTotal() {
   });
   document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
 
-  // Show claim section if total > 0
   const claimSection = document.getElementById("claim-process");
-  if (total > 0) {
-    claimSection.classList.remove("hidden");
-  } else {
-    claimSection.classList.add("hidden");
-  }
+  if (total > 0) claimSection.classList.remove("hidden");
+  else claimSection.classList.add("hidden");
 }
 
-// Render all tiles into the categories
 function renderTiles() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
@@ -172,7 +150,6 @@ function renderTiles() {
   });
 }
 
-// Intro overlay handlers
 const introOverlay = document.getElementById("intro-overlay");
 const mainContent = document.getElementById("main-content");
 
@@ -192,7 +169,6 @@ introOverlay.addEventListener("click", () => {
   mainContent.style.display = "block";
 });
 
-// Claim step navigation
 const claimSection = document.getElementById("claim-process");
 const steps = claimSection.querySelectorAll(".step");
 const prevBtn = document.getElementById("prev-step");
@@ -223,11 +199,10 @@ nextBtn.addEventListener("click", () => {
 
 updateSteps();
 
-// Initialization on page load
 function init() {
   renderTiles();
   updateTotal();
-  mainContent.style.display = "none"; // Hide main content behind intro initially
+  mainContent.style.display = "none";
 }
 
 window.onload = init;
