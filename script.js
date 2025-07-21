@@ -1,3 +1,4 @@
+// List of all items
 const items = [
   // $99 Service Fee items
   { id: "99-1", name: "PCs (Desktops, Laptops, Tablets)", fee: 99, cost: 1200, icon: "🖥️" },
@@ -50,140 +51,39 @@ const items = [
   { id: "0-23", name: "Smart Pulse Oximeters", fee: 0, cost: 150, icon: "🩸" },
 ];
 
-// First modal popup
-const firstModalHTML = `
-  <div id="info-modal" class="modal">
-    <div class="modal-content">
-      <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
-      <button id="modal-ok-btn">OK</button>
-    </div>
-  </div>
-`;
-document.body.insertAdjacentHTML('beforeend', firstModalHTML);
-
-const modal = document.getElementById('info-modal');
-const modalOkBtn = document.getElementById('modal-ok-btn');
-modalOkBtn.addEventListener('click', () => {
-  modal.classList.remove('show');
-  popupShown = true;
-});
-
-let popupShown = false;
-
-// Scroll modal popup
-const scrollModalHTML = `
-  <div id="scroll-modal" class="modal">
-    <div class="modal-content">
-      <p>You will NEVER need to show receipts or proof of purchase anytime you need to make a claim</p>
-      <button id="scroll-modal-ok-btn">OK</button>
-    </div>
-  </div>
-`;
-document.body.insertAdjacentHTML('beforeend', scrollModalHTML);
-
-const scrollModal = document.getElementById('scroll-modal');
-const scrollModalOkBtn = document.getElementById('scroll-modal-ok-btn');
-scrollModalOkBtn.addEventListener('click', () => {
-  scrollModal.classList.remove('show');
-});
-
-let scrollModalShown = false;
-
-window.addEventListener('scroll', () => {
-  const scrollPosition = window.scrollY + window.innerHeight;
-  const pageHeight = document.documentElement.scrollHeight;
-
-  if (!scrollModalShown && scrollPosition >= pageHeight - 50) {
-    scrollModal.classList.add('show');
-    scrollModalShown = true;
-  }
-});
-
-const introOverlay = document.getElementById('intro-overlay');
-const downArrow = document.getElementById('down-arrow');
-
-function hideIntro() {
-  introOverlay.classList.add('hidden');
-
-  // Wait for CSS transition end before enabling scroll
-  introOverlay.addEventListener('transitionend', () => {
-    document.body.style.overflow = 'auto';
-  }, { once: true });
-}
-
-// Disable scrolling initially
-document.body.style.overflow = 'hidden';
-
-// Allow hiding the intro on arrow click
-downArrow.addEventListener('click', hideIntro);
-
-// Also allow hiding intro if user scrolls or swipes down
-window.addEventListener('wheel', (e) => {
-  if (e.deltaY > 0) hideIntro();
-}, { once: true });
-
-window.addEventListener('touchmove', (e) => {
-  hideIntro();
-}, { once: true });
-
+// Create tile element for each item
 function createTile(item) {
   const div = document.createElement("div");
   div.className = "tile";
-  div.dataset.cost = item.cost;
-  div.dataset.id = item.id;
-  div.title = item.name;
-  div.tabIndex = 0;
+  div.id = item.id;
 
+  // Icon as big emoji
   const iconSpan = document.createElement("span");
   iconSpan.textContent = item.icon;
-  iconSpan.style.fontSize = "36px";
-  iconSpan.style.display = "block";
-  iconSpan.style.marginBottom = "8px";
-
-  const nameSpan = document.createElement("span");
-  nameSpan.textContent = item.name;
-
   div.appendChild(iconSpan);
-  div.appendChild(nameSpan);
 
+  // Name label
+  const label = document.createElement("div");
+  label.textContent = item.name;
+  div.appendChild(label);
+
+  // Toggle selection on click
   div.addEventListener("click", () => {
     div.classList.toggle("selected");
     updateTotal();
-
-    if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
-      modal.classList.add('show');
-    }
-  });
-  div.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      div.classList.toggle("selected");
-      updateTotal();
-
-      if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
-        modal.classList.add('show');
-      }
-    }
+    tryShowPopup();
   });
 
   return div;
 }
 
-function updateTotal() {
-  const selected = document.querySelectorAll(".tile.selected");
-  let total = 0;
-  selected.forEach((tile) => {
-    total += parseInt(tile.dataset.cost);
-  });
-  document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
-}
-
-function init() {
+// Render tiles into categories
+function renderTiles() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
   const fee0Container = document.getElementById("fee-0");
 
-  items.forEach((item) => {
+  items.forEach(item => {
     const tile = createTile(item);
     if (item.fee === 99) fee99Container.appendChild(tile);
     else if (item.fee === 49) fee49Container.appendChild(tile);
@@ -191,50 +91,119 @@ function init() {
   });
 }
 
-// Claim process animation code
+// Calculate total cost of selected items
+function updateTotal() {
+  const selectedTiles = document.querySelectorAll(".tile.selected");
+  let total = 0;
+  selectedTiles.forEach(tile => {
+    const item = items.find(i => i.id === tile.id);
+    if (item) total += item.cost;
+  });
+  document.getElementById("grand-total").textContent = `$${total.toLocaleString()}`;
 
-const claimSection = document.getElementById('claim-process');
-const steps = claimSection.querySelectorAll('.step');
-const prevBtn = document.getElementById('prev-step');
-const nextBtn = document.getElementById('next-step');
-let currentStep = 0;
+  // Show claim steps if total > 0
+  const claimSection = document.getElementById("claim-process");
+  if (total > 0) {
+    claimSection.classList.remove("hidden");
+  } else {
+    claimSection.classList.add("hidden");
+  }
+}
 
-// Show claim process section only after scroll near bottom
-let claimSectionShown = false;
-window.addEventListener('scroll', () => {
-  const scrollPosition = window.scrollY + window.innerHeight;
-  const pageHeight = document.documentElement.scrollHeight;
+// Popup modal handling
+const modal = document.createElement("div");
+modal.className = "modal";
+modal.id = "info-modal";
+modal.innerHTML = `
+  <div class="modal-content">
+    <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
+    <button id="modal-ok-btn">OK</button>
+  </div>
+`;
+document.body.appendChild(modal);
 
-  if (!claimSectionShown && scrollPosition >= pageHeight - 100) {
-    claimSection.classList.remove('hidden');
-    claimSectionShown = true;
+const modalOkBtn = document.getElementById("modal-ok-btn");
+modalOkBtn.addEventListener("click", () => {
+  modal.classList.remove("show");
+});
+
+let popupShown = false;
+function tryShowPopup() {
+  if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
+    modal.classList.add("show");
+    popupShown = true;
+  }
+}
+
+// Intro overlay handling (swipe down)
+const introOverlay = document.getElementById("intro-overlay");
+const mainContent = document.getElementById("main-content");
+
+let touchStartY = 0;
+introOverlay.addEventListener("touchstart", e => {
+  touchStartY = e.touches[0].clientY;
+});
+
+introOverlay.addEventListener("touchmove", e => {
+  const currentY = e.touches[0].clientY;
+  if (touchStartY - currentY > 50) {
+    // Swipe up detected, hide intro
+    introOverlay.classList.add("hidden");
+    mainContent.style.display = "block";
   }
 });
 
-function updateStep() {
-  steps.forEach((step, index) => {
-    step.classList.toggle('active', index === currentStep);
+// Claim steps slider
+const steps = document.querySelectorAll("#claim-process .step");
+const prevBtn = document.getElementById("prev-step");
+const nextBtn = document.getElementById("next-step");
+let currentStep = 0;
+
+function updateSteps() {
+  steps.forEach((step, idx) => {
+    step.classList.toggle("active", idx === currentStep);
   });
   prevBtn.disabled = currentStep === 0;
   nextBtn.disabled = currentStep === steps.length - 1;
 }
 
-prevBtn.addEventListener('click', () => {
+prevBtn.addEventListener("click", () => {
   if (currentStep > 0) {
     currentStep--;
-    updateStep();
+    updateSteps();
   }
 });
 
-nextBtn.addEventListener('click', () => {
+nextBtn.addEventListener("click", () => {
   if (currentStep < steps.length - 1) {
     currentStep++;
-    updateStep();
+    updateSteps();
   }
 });
 
-// Initialize steps and hide claim section by default
-claimSection.classList.add('hidden');
-updateStep();
+updateSteps();
+
+// Set real claim step images
+const claimStepImages = [
+  "step1.jpg",
+  "step2.jpg",
+  "step3.jpg",
+  "step4.jpg"
+];
+
+steps.forEach((step, index) => {
+  const img = step.querySelector('img');
+  if(img) {
+    img.src = claimStepImages[index];
+    img.alt = `Step ${index + 1} image`;
+  }
+});
+
+// Initialize app
+function init() {
+  renderTiles();
+  updateTotal();
+  mainContent.style.display = "none"; // Hide main content initially
+}
 
 window.onload = init;
