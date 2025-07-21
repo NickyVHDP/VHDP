@@ -50,54 +50,79 @@ const items = [
   { id: "0-23", name: "Smart Pulse Oximeters", fee: 0, cost: 150, icon: "🩸" },
 ];
 
-// Create tile element for each item
+// Create tiles with quantity selectors
 function createTile(item) {
   const div = document.createElement("div");
   div.className = "tile";
-  div.dataset.cost = item.cost;
-  div.dataset.id = item.id;
-  div.title = item.name;
-  div.tabIndex = 0;
 
+  // Icon
   const iconSpan = document.createElement("span");
+  iconSpan.className = "icon";
   iconSpan.textContent = item.icon;
-  iconSpan.style.fontSize = "36px";
-  iconSpan.style.display = "block";
-  iconSpan.style.marginBottom = "8px";
+  div.appendChild(iconSpan);
 
+  // Name
   const nameSpan = document.createElement("span");
   nameSpan.textContent = item.name;
-
-  div.appendChild(iconSpan);
   div.appendChild(nameSpan);
 
-  div.addEventListener("click", () => {
-    div.classList.toggle("selected");
-    updateTotal();
-    tryShowPopup();
-  });
+  // Quantity controls container
+  const qtyControls = document.createElement("div");
+  qtyControls.className = "qty-controls";
 
-  div.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      div.classList.toggle("selected");
-      updateTotal();
-      tryShowPopup();
+  // Minus button
+  const minusBtn = document.createElement("button");
+  minusBtn.className = "qty-btn";
+  minusBtn.textContent = "−";
+  qtyControls.appendChild(minusBtn);
+
+  // Quantity display
+  const qtyDisplay = document.createElement("span");
+  qtyDisplay.className = "qty-display";
+  qtyDisplay.textContent = "0";
+  qtyControls.appendChild(qtyDisplay);
+
+  // Plus button
+  const plusBtn = document.createElement("button");
+  plusBtn.className = "qty-btn";
+  plusBtn.textContent = "+";
+  qtyControls.appendChild(plusBtn);
+
+  div.appendChild(qtyControls);
+
+  // Current quantity
+  let quantity = 0;
+
+  function updateQuantity(newQty) {
+    quantity = Math.max(0, newQty);
+    qtyDisplay.textContent = quantity;
+    if (quantity > 0) {
+      div.classList.add("selected");
+    } else {
+      div.classList.remove("selected");
     }
+    updateTotal();
+  }
+
+  plusBtn.addEventListener("click", () => {
+    updateQuantity(quantity + 1);
   });
 
-  return div;
+  minusBtn.addEventListener("click", () => {
+    updateQuantity(quantity - 1);
+  });
+
+  return { tileElement: div, getQuantity: () => quantity, item };
 }
 
-// Update total cost and toggle claim section visibility
 function updateTotal() {
-  const selected = document.querySelectorAll(".tile.selected");
   let total = 0;
-  selected.forEach((tile) => {
-    total += parseInt(tile.dataset.cost, 10);
+  tiles.forEach(({ getQuantity, item }) => {
+    total += getQuantity() * item.cost;
   });
   document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
 
+  // Show or hide claim section depending on total
   const claimSection = document.getElementById("claim-process");
   if (total > 0) {
     claimSection.classList.remove("hidden");
@@ -106,101 +131,53 @@ function updateTotal() {
   }
 }
 
-// Modal popup setup for first selection
-let popupShown = false;
-const modal = document.createElement("div");
-modal.className = "modal";
-modal.id = "info-modal";
-modal.innerHTML = `
-  <div class="modal-content">
-    <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
-    <button id="modal-ok-btn">OK</button>
-  </div>
-`;
-document.body.appendChild(modal);
+let tiles = [];
 
-const modalOkBtn = document.getElementById("modal-ok-btn");
-modalOkBtn.addEventListener("click", () => {
-  modal.classList.remove("show");
-  popupShown = true;
-});
-
-function tryShowPopup() {
-  if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
-    modal.classList.add("show");
-  }
-}
-
-// Render all tiles into the categories
-function renderTiles() {
+function init() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
   const fee0Container = document.getElementById("fee-0");
 
   items.forEach(item => {
-    const tile = createTile(item);
-    if (item.fee === 99) fee99Container.appendChild(tile);
-    else if (item.fee === 49) fee49Container.appendChild(tile);
-    else fee0Container.appendChild(tile);
+    const { tileElement, getQuantity } = createTile(item);
+    tiles.push({ tileElement, getQuantity, item });
+    if (item.fee === 99) fee99Container.appendChild(tileElement);
+    else if (item.fee === 49) fee49Container.appendChild(tileElement);
+    else fee0Container.appendChild(tileElement);
   });
+
+  updateTotal();
 }
 
-// Intro overlay swipe/tap handlers
-const introOverlay = document.getElementById("intro-overlay");
-const mainContent = document.getElementById("main-content");
-
-let touchStartY = 0;
-introOverlay.addEventListener("touchstart", e => {
-  touchStartY = e.touches[0].clientY;
-});
-introOverlay.addEventListener("touchmove", e => {
-  const currentY = e.touches[0].clientY;
-  if (touchStartY - currentY > 50) {
-    introOverlay.classList.add("hidden");
-    mainContent.style.display = "block";
-  }
-});
-introOverlay.addEventListener("click", () => {
-  introOverlay.classList.add("hidden");
-  mainContent.style.display = "block";
-});
-
-// Step-by-step claim navigation
-const claimSection = document.getElementById("claim-process");
-const steps = claimSection.querySelectorAll(".step");
-const prevBtn = document.getElementById("prev-step");
-const nextBtn = document.getElementById("next-step");
+// Claim process navigation code (same as before)
+const claimSection = document.getElementById('claim-process');
+const steps = claimSection.querySelectorAll('.step');
+const prevBtn = document.getElementById('prev-step');
+const nextBtn = document.getElementById('next-step');
 let currentStep = 0;
 
-function updateSteps() {
-  steps.forEach((step, idx) => {
-    step.classList.toggle("active", idx === currentStep);
+function updateStep() {
+  steps.forEach((step, index) => {
+    step.classList.toggle('active', index === currentStep);
   });
   prevBtn.disabled = currentStep === 0;
   nextBtn.disabled = currentStep === steps.length - 1;
 }
 
-prevBtn.addEventListener("click", () => {
+prevBtn.addEventListener('click', () => {
   if (currentStep > 0) {
     currentStep--;
-    updateSteps();
+    updateStep();
   }
 });
 
-nextBtn.addEventListener("click", () => {
+nextBtn.addEventListener('click', () => {
   if (currentStep < steps.length - 1) {
     currentStep++;
-    updateSteps();
+    updateStep();
   }
 });
 
-updateSteps();
-
-// Initialization on page load
-function init() {
-  renderTiles();
-  updateTotal();
-  mainContent.style.display = "none"; // Keep main content hidden behind intro
-}
+updateStep();
 
 window.onload = init;
