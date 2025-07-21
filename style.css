@@ -1,83 +1,109 @@
-/* Container for steps with fixed height and horizontal scroll effect */
-.steps-container {
-  position: relative;
-  overflow: hidden;
+/* Step-by-step claim section fixes */
+
+.claim-process {
+  margin-top: 40px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 25px 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   max-width: 700px;
-  margin: 0 auto 20px;
-  height: auto; /* allow height to grow */
-  min-height: 360px; /* enough space for images + text */
+  margin-left: auto;
+  margin-right: auto;
+  user-select: none;
+  /* Allow vertical space for content on small screens */
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* Each step slides horizontally */
+.claim-process h2 {
+  color: #d9002d;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.steps-container {
+  position: relative;
+  /* Increase height to accommodate image + text on mobile */
+  min-height: 350px;
+  overflow: hidden;
+}
+
 .step {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.6s ease;
   pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   padding: 0 15px;
-  /* allow text to wrap and be fully visible */
-  white-space: normal;
-  max-width: 100%;
-  height: auto;
-  overflow: visible;
 }
 
 .step.active {
   opacity: 1;
   pointer-events: auto;
-  position: relative;
 }
 
-/* Responsive images */
+/* Make images responsive */
 .step img {
-  width: 90vw;
-  max-width: 320px;
+  max-width: 100%;
   height: auto;
+  max-height: 220px;
+  object-fit: contain;
   margin-bottom: 15px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-/* Step headers */
+/* Adjust step heading */
 .step h3 {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: #d9002d;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
-/* Step paragraphs */
+/* Step description text */
 .step p {
   font-size: 1rem;
   color: #555;
-  line-height: 1.4;
-  margin: 0 auto 10px;
-  max-width: 100%;
-  word-wrap: break-word;
+  line-height: 1.5;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
   white-space: normal;
+  word-wrap: break-word;
+  /* Allow multiline wrapping on all devices */
+  overflow-wrap: break-word;
 }
 
-/* Step navigation buttons */
+/* Navigation button container */
 .step-controls {
   display: flex;
   justify-content: center;
   gap: 20px;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 
+/* Navigation buttons */
 .step-controls button {
   background: #d9002d;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 30px;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
+  min-width: 100px;
+  box-sizing: border-box;
+  font-size: 1rem;
 }
 
 .step-controls button:disabled {
@@ -89,9 +115,34 @@
   background: #a30022;
 }
 
-/* Mobile tweaks */
-@media screen and (max-width: 420px) {
+/* Responsive adjustments for small screens */
+@media (max-width: 480px) {
+  .claim-process {
+    padding: 20px 15px;
+    min-height: 480px; /* extra space on small phones */
+  }
+
   .steps-container {
-    min-height: 420px; /* more height for mobile */
+    min-height: 400px;
+  }
+
+  .step img {
+    max-height: 250px;
+    margin-bottom: 18px;
+  }
+
+  .step p {
+    font-size: 1.05rem;
+    max-width: 95%;
+  }
+
+  .step-controls {
+    gap: 15px;
+  }
+
+  .step-controls button {
+    min-width: 45%;
+    padding: 12px 0;
+    font-size: 1.1rem;
   }
 }
