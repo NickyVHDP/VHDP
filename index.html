@@ -7,7 +7,17 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
+  <!-- Intro Overlay -->
+  <div id="intro-overlay">
+    <div class="intro-text">
+      <p>Do you have any tech at home that doesn’t work or that’s broken?</p>
+      <div id="down-arrow">&#8595;</div>
+      <div id="swipe-text">Swipe down to continue</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container" id="main-content">
     <h1>Verizon Home Device Protect</h1>
 
     <section class="category">
@@ -29,10 +39,57 @@
       Grand Total: <span id="grand-total">$0</span>
     </div>
 
+    <div class="info-spot">
+      <p>We will do one of the three R’s:<br /><strong>Repair, Replace, or Reimburse.</strong></p>
+      <ul>
+        <li>Yearly allowance of $5,000</li>
+        <li>Covers tech for TWO households</li>
+        <li>Unlimited claims on unlimited items</li>
+      </ul>
+    </div>
+
     <div class="cta">
       <p>Ready to protect your tech? Contact:</p>
       <strong>Nicky McCracken<br />210-643-1578</strong>
     </div>
+
+    <!-- Claim Process Section -->
+    <section id="claim-process" class="claim-process hidden">
+      <h2>How to Make a Claim</h2>
+      <div class="steps-container">
+
+        <div class="step active">
+          <img src="https://via.placeholder.com/300x180?text=Step+1" alt="Step 1" />
+          <h3>Step 1: Visit Asurion Claims</h3>
+          <p>Go to <a href="https://asurion.com/claims/" target="_blank" rel="noopener">Asurion.com/claims/</a> and follow the easy online steps to start your claim.</p>
+        </div>
+
+        <div class="step">
+          <img src="https://via.placeholder.com/300x180?text=Step+2" alt="Step 2" />
+          <h3>Step 2: Item Eligibility</h3>
+          <p>Bigger items are covered only under malfunction. Portable devices are covered for any issue, including accidental damage.</p>
+        </div>
+
+        <div class="step">
+          <img src="https://via.placeholder.com/300x180?text=Step+3" alt="Step 3" />
+          <h3>Step 3: Repair or Replace</h3>
+          <p>If your tech is unrepairable, Asurion will replace it with the newest version available.</p>
+        </div>
+
+        <div class="step">
+          <img src="https://via.placeholder.com/300x180?text=Step+4" alt="Step 4" />
+          <h3>Step 4: Discontinued Tech</h3>
+          <p>If your device is discontinued, you will be reimbursed via Venmo, PayPal, or a mailed check.</p>
+        </div>
+
+      </div>
+
+      <div class="step-controls">
+        <button id="prev-step" disabled>Previous</button>
+        <button id="next-step">Next</button>
+      </div>
+    </section>
+
   </div>
 
   <script src="script.js"></script>
