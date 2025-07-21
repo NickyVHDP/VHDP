@@ -139,12 +139,12 @@ h1 {
 #intro-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: white;
+  background: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 100000; /* above everything */
+  z-index: 100000;
   transition: opacity 0.5s ease, visibility 0.5s ease;
   opacity: 1;
   visibility: visible;
@@ -152,16 +152,21 @@ h1 {
 #intro-overlay.hidden {
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
 }
 .intro-text {
   text-align: center;
   font-size: 1.6rem;
   color: #d9002d;
-  max-width: 300px;
+  max-width: 320px;
   user-select: none;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(217,0,45,0.3);
+  border-radius: 12px;
+  background: #fff;
 }
 #down-arrow {
-  font-size: 3rem;
+  font-size: 3.5rem;
   margin-top: 20px;
   color: #d9002d;
   cursor: pointer;
