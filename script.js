@@ -257,7 +257,6 @@ const scrollModalHTML = `
     </div>
   </div>
 `;
-// Append scroll modal to body
 document.body.insertAdjacentHTML('beforeend', scrollModalHTML);
 
 const scrollModal = document.getElementById('scroll-modal');
@@ -269,16 +268,37 @@ scrollModalOkBtn.addEventListener('click', () => {
   scrollModal.classList.remove('show');
 });
 
-// Show scroll modal once when user scrolls near bottom of page
-window.addEventListener('scroll', () => {
+function checkScrollPosition() {
   const scrollPosition = window.scrollY + window.innerHeight;
   const pageHeight = document.documentElement.scrollHeight;
 
-  if (!scrollModalShown && scrollPosition >= pageHeight - 50) {
+  if (!scrollModalShown && scrollPosition >= pageHeight - 150) {
     scrollModal.classList.add('show');
     scrollModalShown = true;
+    removeScrollListeners();
   }
-});
+}
+
+function removeScrollListeners() {
+  window.removeEventListener('scroll', onScrollOrTouch);
+  window.removeEventListener('touchmove', onScrollOrTouch);
+}
+
+function onScrollOrTouch() {
+  checkScrollPosition();
+}
+
+window.addEventListener('scroll', onScrollOrTouch, { passive: true });
+window.addEventListener('touchmove', onScrollOrTouch, { passive: true });
+
+// Fallback: show popup after 8 seconds if user hasn't scrolled near bottom yet
+setTimeout(() => {
+  if (!scrollModalShown) {
+    scrollModal.classList.add('show');
+    scrollModalShown = true;
+    removeScrollListeners();
+  }
+}, 8000);
 
 // Claim step navigation
 const claimSection = document.getElementById("claim-process");
@@ -316,6 +336,8 @@ updateSteps();
 function init() {
   renderTiles();
   updateTotal();
+  // Hide main content initially behind intro overlay
+  mainContent.style.display = "none";
 }
 
 window.onload = init;
