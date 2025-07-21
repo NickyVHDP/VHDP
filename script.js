@@ -50,7 +50,84 @@ const items = [
   { id: "0-23", name: "Smart Pulse Oximeters", fee: 0, cost: 150, icon: "🩸" },
 ];
 
-// Create tile with quantity controls & improved mobile support
+// Modal popup state
+let popupShown = false;
+
+// Intro overlay and main content elements
+const introOverlay = document.getElementById("intro-overlay");
+const mainContent = document.getElementById("main-content");
+
+// Disable scrolling initially and hide main content
+mainContent.style.display = "none";
+document.body.style.overflow = "hidden";
+
+let touchStartY = 0;
+
+// Create modal element
+const modal = document.createElement("div");
+modal.className = "modal";
+modal.id = "info-modal";
+modal.innerHTML = `
+  <div class="modal-content">
+    <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
+    <button id="modal-ok-btn">OK</button>
+  </div>
+`;
+document.body.appendChild(modal);
+
+const modalOkBtn = document.getElementById("modal-ok-btn");
+modalOkBtn.addEventListener("click", () => {
+  modal.classList.remove("show");
+  popupShown = true;
+});
+
+// Hide intro overlay & show main content
+function hideIntro() {
+  introOverlay.classList.add("hidden");
+  mainContent.style.display = "block";
+  introOverlay.addEventListener(
+    "transitionend",
+    () => {
+      document.body.style.overflow = "auto";
+    },
+    { once: true }
+  );
+}
+
+// Swipe down detection on overlay
+introOverlay.addEventListener("touchstart", (e) => {
+  touchStartY = e.touches[0].clientY;
+});
+
+introOverlay.addEventListener("touchmove", (e) => {
+  const currentY = e.touches[0].clientY;
+  if (currentY - touchStartY > 50) {
+    hideIntro();
+  }
+});
+
+// Click or tap overlay to hide
+introOverlay.addEventListener("click", () => {
+  hideIntro();
+});
+
+// Scroll or wheel triggers hide once
+window.addEventListener(
+  "wheel",
+  (e) => {
+    if (e.deltaY > 0) hideIntro();
+  },
+  { once: true }
+);
+window.addEventListener(
+  "touchmove",
+  () => {
+    hideIntro();
+  },
+  { once: true }
+);
+
+// Create tile for each item with quantity controls
 function createTile(item) {
   const div = document.createElement("div");
   div.className = "tile";
@@ -68,81 +145,119 @@ function createTile(item) {
   const nameSpan = document.createElement("span");
   nameSpan.textContent = item.name;
 
-  const qtyControls = document.createElement("div");
-  qtyControls.className = "quantity-controls";
+  // Quantity controls container
+  const quantityControls = document.createElement("div");
+  quantityControls.className = "quantity-controls";
 
   const minusBtn = document.createElement("button");
-  minusBtn.className = "quantity-minus";
-  minusBtn.setAttribute("aria-label", `Decrease quantity for ${item.name}`);
-  minusBtn.textContent = "−";
-
-  const qtyValue = document.createElement("span");
-  qtyValue.className = "quantity-value";
-  qtyValue.textContent = "0";
-
+  minusBtn.type = "button";
+  minusBtn.textContent = "−"; // minus sign
   const plusBtn = document.createElement("button");
-  plusBtn.className = "quantity-plus";
-  plusBtn.setAttribute("aria-label", `Increase quantity for ${item.name}`);
+  plusBtn.type = "button";
   plusBtn.textContent = "+";
 
-  qtyControls.appendChild(minusBtn);
-  qtyControls.appendChild(qtyValue);
-  qtyControls.appendChild(plusBtn);
+  const quantityValue = document.createElement("span");
+  quantityValue.className = "quantity-value";
+  quantityValue.textContent = "0";
+
+  quantityControls.appendChild(minusBtn);
+  quantityControls.appendChild(quantityValue);
+  quantityControls.appendChild(plusBtn);
 
   div.appendChild(iconSpan);
   div.appendChild(nameSpan);
-  div.appendChild(qtyControls);
+  div.appendChild(quantityControls);
 
-  let quantity = 0;
-
-  function updateQuantity(newQty) {
-    quantity = Math.max(0, newQty);
-    qtyValue.textContent = quantity;
-    if (quantity > 0) div.classList.add("selected");
-    else div.classList.remove("selected");
+  // Handle quantity increment/decrement
+  minusBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    let qty = parseInt(quantityValue.textContent, 10);
+    if (qty > 0) qty--;
+    quantityValue.textContent = qty;
+    if (qty === 0) div.classList.remove("selected");
+    else div.classList.add("selected");
     updateTotal();
-  }
+  });
 
-  // Add click & touchend handlers for Safari mobile
-  plusBtn.addEventListener("click", () => updateQuantity(quantity + 1));
-  plusBtn.addEventListener("touchend", (e) => { e.preventDefault(); updateQuantity(quantity + 1); });
+  plusBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    let qty = parseInt(quantityValue.textContent, 10);
+    qty++;
+    quantityValue.textContent = qty;
+    if (qty > 0) div.classList.add("selected");
+    updateTotal();
+  });
 
-  minusBtn.addEventListener("click", () => updateQuantity(quantity - 1));
-  minusBtn.addEventListener("touchend", (e) => { e.preventDefault(); updateQuantity(quantity - 1); });
+  // Also toggle selection on tile click: add 1 if currently 0, else remove all
+  div.addEventListener("click", () => {
+    let qty = parseInt(quantityValue.textContent, 10);
+    if (qty === 0) {
+      quantityValue.textContent = "1";
+      div.classList.add("selected");
+    } else {
+      quantityValue.textContent = "0";
+      div.classList.remove("selected");
+    }
+    updateTotal();
+  });
 
+  // Keyboard support for accessibility
   div.addEventListener("keydown", (e) => {
-    if (e.target.tagName === 'BUTTON') return; // Ignore if focus is on buttons
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      updateQuantity(quantity === 0 ? 1 : 0);
+      let qty = parseInt(quantityValue.textContent, 10);
+      if (qty === 0) {
+        quantityValue.textContent = "1";
+        div.classList.add("selected");
+      } else {
+        quantityValue.textContent = "0";
+        div.classList.remove("selected");
+      }
+      updateTotal();
     }
   });
 
   return div;
 }
 
+// Update total cost based on quantities
 function updateTotal() {
   const tiles = document.querySelectorAll(".tile");
   let total = 0;
-  tiles.forEach(tile => {
-    const cost = parseInt(tile.dataset.cost, 10);
-    const qtyValue = tile.querySelector(".quantity-value");
-    const qty = qtyValue ? parseInt(qtyValue.textContent, 10) : 0;
-    total += cost * qty;
+  tiles.forEach((tile) => {
+    if (tile.classList.contains("selected")) {
+      const qty = parseInt(tile.querySelector(".quantity-value").textContent, 10);
+      const cost = parseInt(tile.dataset.cost, 10);
+      total += qty * cost;
+    }
   });
   document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
 
+  // Show or hide claim section depending on total
   const claimSection = document.getElementById("claim-process");
-  if (total > 0) claimSection.classList.remove("hidden");
-  else claimSection.classList.add("hidden");
+  if (total > 0) {
+    claimSection.classList.remove("hidden");
+  } else {
+    claimSection.classList.add("hidden");
+  }
+
+  // Show modal once on first selection
+  tryShowPopup();
 }
 
+function tryShowPopup() {
+  if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
+    modal.classList.add("show");
+  }
+}
+
+// Render all items in correct containers
 function renderTiles() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
   const fee0Container = document.getElementById("fee-0");
 
-  items.forEach(item => {
+  items.forEach((item) => {
     const tile = createTile(item);
     if (item.fee === 99) fee99Container.appendChild(tile);
     else if (item.fee === 49) fee49Container.appendChild(tile);
@@ -150,25 +265,7 @@ function renderTiles() {
   });
 }
 
-const introOverlay = document.getElementById("intro-overlay");
-const mainContent = document.getElementById("main-content");
-
-let touchStartY = 0;
-introOverlay.addEventListener("touchstart", e => {
-  touchStartY = e.touches[0].clientY;
-});
-introOverlay.addEventListener("touchmove", e => {
-  const currentY = e.touches[0].clientY;
-  if (touchStartY - currentY > 50) {
-    introOverlay.classList.add("hidden");
-    mainContent.style.display = "block";
-  }
-});
-introOverlay.addEventListener("click", () => {
-  introOverlay.classList.add("hidden");
-  mainContent.style.display = "block";
-});
-
+// Claim step navigation
 const claimSection = document.getElementById("claim-process");
 const steps = claimSection.querySelectorAll(".step");
 const prevBtn = document.getElementById("prev-step");
@@ -189,7 +286,6 @@ prevBtn.addEventListener("click", () => {
     updateSteps();
   }
 });
-
 nextBtn.addEventListener("click", () => {
   if (currentStep < steps.length - 1) {
     currentStep++;
@@ -197,12 +293,14 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
+// Hide claim section initially
+claimSection.classList.add("hidden");
 updateSteps();
 
+// Initialize app
 function init() {
   renderTiles();
   updateTotal();
-  mainContent.style.display = "none";
 }
 
 window.onload = init;
