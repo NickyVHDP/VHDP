@@ -50,52 +50,60 @@ const items = [
   { id: "0-23", name: "Smart Pulse Oximeters", fee: 0, cost: 150, icon: "🩸" },
 ];
 
-// Create tiles with quantity selectors
+// Create tile with quantity controls
 function createTile(item) {
   const div = document.createElement("div");
   div.className = "tile";
+  div.dataset.cost = item.cost;
+  div.dataset.id = item.id;
+  div.title = item.name;
+  div.tabIndex = 0;
 
-  // Icon
   const iconSpan = document.createElement("span");
-  iconSpan.className = "icon";
   iconSpan.textContent = item.icon;
-  div.appendChild(iconSpan);
+  iconSpan.style.fontSize = "36px";
+  iconSpan.style.display = "block";
+  iconSpan.style.marginBottom = "8px";
 
-  // Name
   const nameSpan = document.createElement("span");
   nameSpan.textContent = item.name;
-  div.appendChild(nameSpan);
 
-  // Quantity controls container
+  // Quantity Controls container
   const qtyControls = document.createElement("div");
-  qtyControls.className = "qty-controls";
+  qtyControls.className = "quantity-controls";
 
   // Minus button
   const minusBtn = document.createElement("button");
-  minusBtn.className = "qty-btn";
+  minusBtn.className = "quantity-minus";
+  minusBtn.setAttribute("aria-label", `Decrease quantity for ${item.name}`);
   minusBtn.textContent = "−";
-  qtyControls.appendChild(minusBtn);
 
   // Quantity display
-  const qtyDisplay = document.createElement("span");
-  qtyDisplay.className = "qty-display";
-  qtyDisplay.textContent = "0";
-  qtyControls.appendChild(qtyDisplay);
+  const qtyValue = document.createElement("span");
+  qtyValue.className = "quantity-value";
+  qtyValue.textContent = "0";
 
   // Plus button
   const plusBtn = document.createElement("button");
-  plusBtn.className = "qty-btn";
+  plusBtn.className = "quantity-plus";
+  plusBtn.setAttribute("aria-label", `Increase quantity for ${item.name}`);
   plusBtn.textContent = "+";
+
+  qtyControls.appendChild(minusBtn);
+  qtyControls.appendChild(qtyValue);
   qtyControls.appendChild(plusBtn);
 
+  div.appendChild(iconSpan);
+  div.appendChild(nameSpan);
   div.appendChild(qtyControls);
 
-  // Current quantity
+  // Start quantity at 0
   let quantity = 0;
 
+  // Update visual and total cost on quantity change
   function updateQuantity(newQty) {
     quantity = Math.max(0, newQty);
-    qtyDisplay.textContent = quantity;
+    qtyValue.textContent = quantity;
     if (quantity > 0) {
       div.classList.add("selected");
     } else {
@@ -104,25 +112,44 @@ function createTile(item) {
     updateTotal();
   }
 
+  // Plus button click
   plusBtn.addEventListener("click", () => {
     updateQuantity(quantity + 1);
   });
 
+  // Minus button click
   minusBtn.addEventListener("click", () => {
     updateQuantity(quantity - 1);
   });
 
-  return { tileElement: div, getQuantity: () => quantity, item };
+  // Keyboard accessibility: Enter or Space toggles quantity between 0 and 1
+  div.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (quantity === 0) {
+        updateQuantity(1);
+      } else {
+        updateQuantity(0);
+      }
+    }
+  });
+
+  return div;
 }
 
+// Update total cost based on quantities:
 function updateTotal() {
+  const tiles = document.querySelectorAll(".tile");
   let total = 0;
-  tiles.forEach(({ getQuantity, item }) => {
-    total += getQuantity() * item.cost;
+  tiles.forEach(tile => {
+    const cost = parseInt(tile.dataset.cost, 10);
+    const qtyValue = tile.querySelector(".quantity-value");
+    const qty = qtyValue ? parseInt(qtyValue.textContent, 10) : 0;
+    total += cost * qty;
   });
   document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
 
-  // Show or hide claim section depending on total
+  // Show claim section if total > 0
   const claimSection = document.getElementById("claim-process");
   if (total > 0) {
     claimSection.classList.remove("hidden");
@@ -131,53 +158,76 @@ function updateTotal() {
   }
 }
 
-let tiles = [];
-
-function init() {
+// Render all tiles into the categories
+function renderTiles() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
   const fee0Container = document.getElementById("fee-0");
 
   items.forEach(item => {
-    const { tileElement, getQuantity } = createTile(item);
-    tiles.push({ tileElement, getQuantity, item });
-    if (item.fee === 99) fee99Container.appendChild(tileElement);
-    else if (item.fee === 49) fee49Container.appendChild(tileElement);
-    else fee0Container.appendChild(tileElement);
+    const tile = createTile(item);
+    if (item.fee === 99) fee99Container.appendChild(tile);
+    else if (item.fee === 49) fee49Container.appendChild(tile);
+    else fee0Container.appendChild(tile);
   });
-
-  updateTotal();
 }
 
-// Claim process navigation code (same as before)
-const claimSection = document.getElementById('claim-process');
-const steps = claimSection.querySelectorAll('.step');
-const prevBtn = document.getElementById('prev-step');
-const nextBtn = document.getElementById('next-step');
+// Intro overlay handlers
+const introOverlay = document.getElementById("intro-overlay");
+const mainContent = document.getElementById("main-content");
+
+let touchStartY = 0;
+introOverlay.addEventListener("touchstart", e => {
+  touchStartY = e.touches[0].clientY;
+});
+introOverlay.addEventListener("touchmove", e => {
+  const currentY = e.touches[0].clientY;
+  if (touchStartY - currentY > 50) {
+    introOverlay.classList.add("hidden");
+    mainContent.style.display = "block";
+  }
+});
+introOverlay.addEventListener("click", () => {
+  introOverlay.classList.add("hidden");
+  mainContent.style.display = "block";
+});
+
+// Claim step navigation
+const claimSection = document.getElementById("claim-process");
+const steps = claimSection.querySelectorAll(".step");
+const prevBtn = document.getElementById("prev-step");
+const nextBtn = document.getElementById("next-step");
 let currentStep = 0;
 
-function updateStep() {
-  steps.forEach((step, index) => {
-    step.classList.toggle('active', index === currentStep);
+function updateSteps() {
+  steps.forEach((step, idx) => {
+    step.classList.toggle("active", idx === currentStep);
   });
   prevBtn.disabled = currentStep === 0;
   nextBtn.disabled = currentStep === steps.length - 1;
 }
 
-prevBtn.addEventListener('click', () => {
+prevBtn.addEventListener("click", () => {
   if (currentStep > 0) {
     currentStep--;
-    updateStep();
+    updateSteps();
   }
 });
 
-nextBtn.addEventListener('click', () => {
+nextBtn.addEventListener("click", () => {
   if (currentStep < steps.length - 1) {
     currentStep++;
-    updateStep();
+    updateSteps();
   }
 });
 
-updateStep();
+updateSteps();
+
+// Initialization on page load
+function init() {
+  renderTiles();
+  updateTotal();
+  mainContent.style.display = "none"; // Hide main content behind intro initially
+}
 
 window.onload = init;
