@@ -1,6 +1,5 @@
-// Full list of items
 const items = [
-  // $99 Service Fee
+  // $99 Service Fee items
   { id: "99-1", name: "PCs (Desktops, Laptops, Tablets)", fee: 99, cost: 1200, icon: "🖥️" },
   { id: "99-2", name: "TVs (LCD, Plasma or LED)", fee: 99, cost: 1000, icon: "📺" },
   { id: "99-3", name: "Gaming Systems", fee: 99, cost: 500, icon: "🎮" },
@@ -14,7 +13,7 @@ const items = [
   { id: "99-11", name: "Robotic Vacuums", fee: 99, cost: 400, icon: "🤖" },
   { id: "99-12", name: "Robotic Mops", fee: 99, cost: 450, icon: "🤖" },
 
-  // $49 Service Fee
+  // $49 Service Fee items
   { id: "49-1", name: "Smart Door Locks", fee: 49, cost: 200, icon: "🔒" },
   { id: "49-2", name: "Smart Home Security Cameras", fee: 49, cost: 150, icon: "📷" },
   { id: "49-3", name: "Smart Thermostats", fee: 49, cost: 180, icon: "🌡️" },
@@ -25,7 +24,7 @@ const items = [
   { id: "49-8", name: "Pet Snack & Food Dispensers", fee: 49, cost: 100, icon: "🍖" },
   { id: "49-9", name: "Pet Auto Fetch Machines", fee: 49, cost: 150, icon: "🐕" },
 
-  // No Service Fee
+  // No Service Fee items
   { id: "0-1", name: "Remote Control (Original Control Only)", fee: 0, cost: 50, icon: "🎮" },
   { id: "0-2", name: "Game Controllers", fee: 0, cost: 60, icon: "🎮" },
   { id: "0-3", name: "External PC Speakers (Wired or Wireless)", fee: 0, cost: 80, icon: "🔊" },
@@ -90,6 +89,7 @@ function createTile(item) {
   return div;
 }
 
+// Update total cost and toggle claim section visibility
 function updateTotal() {
   const selected = document.querySelectorAll(".tile.selected");
   let total = 0;
@@ -106,6 +106,7 @@ function updateTotal() {
   }
 }
 
+// Modal popup setup for first selection
 let popupShown = false;
 const modal = document.createElement("div");
 modal.className = "modal";
@@ -130,6 +131,7 @@ function tryShowPopup() {
   }
 }
 
+// Render all tiles into the categories
 function renderTiles() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
@@ -143,6 +145,7 @@ function renderTiles() {
   });
 }
 
+// Intro overlay swipe/tap handlers
 const introOverlay = document.getElementById("intro-overlay");
 const mainContent = document.getElementById("main-content");
 
@@ -162,6 +165,7 @@ introOverlay.addEventListener("click", () => {
   mainContent.style.display = "block";
 });
 
+// Step-by-step claim navigation
 const claimSection = document.getElementById("claim-process");
 const steps = claimSection.querySelectorAll(".step");
 const prevBtn = document.getElementById("prev-step");
@@ -192,10 +196,11 @@ nextBtn.addEventListener("click", () => {
 
 updateSteps();
 
+// Initialization on page load
 function init() {
   renderTiles();
   updateTotal();
-  mainContent.style.display = "none";
+  mainContent.style.display = "none"; // Keep main content hidden behind intro
 }
 
 window.onload = init;
