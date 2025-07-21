@@ -90,7 +90,6 @@ function createTile(item) {
   return div;
 }
 
-// Update the grand total cost display
 function updateTotal() {
   const selected = document.querySelectorAll(".tile.selected");
   let total = 0;
@@ -99,7 +98,6 @@ function updateTotal() {
   });
   document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
 
-  // Show claim process only if total > 0
   const claimSection = document.getElementById("claim-process");
   if (total > 0) {
     claimSection.classList.remove("hidden");
@@ -109,7 +107,6 @@ function updateTotal() {
 }
 
 let popupShown = false;
-// Modal popup for info message
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.id = "info-modal";
@@ -133,7 +130,6 @@ function tryShowPopup() {
   }
 }
 
-// Render all tiles into their respective fee containers
 function renderTiles() {
   const fee99Container = document.getElementById("fee-99");
   const fee49Container = document.getElementById("fee-49");
@@ -147,7 +143,6 @@ function renderTiles() {
   });
 }
 
-// Intro overlay functionality: hide on swipe down or tap
 const introOverlay = document.getElementById("intro-overlay");
 const mainContent = document.getElementById("main-content");
 
@@ -167,7 +162,6 @@ introOverlay.addEventListener("click", () => {
   mainContent.style.display = "block";
 });
 
-// Claim process steps logic
 const claimSection = document.getElementById("claim-process");
 const steps = claimSection.querySelectorAll(".step");
 const prevBtn = document.getElementById("prev-step");
@@ -201,7 +195,7 @@ updateSteps();
 function init() {
   renderTiles();
   updateTotal();
-  mainContent.style.display = "none"; // Hide main content initially
+  mainContent.style.display = "none";
 }
 
 window.onload = init;
