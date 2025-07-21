@@ -215,18 +215,18 @@ h1 {
 }
 .steps-container {
   position: relative;
-  min-height: 320px;
-  max-height: none;
-  overflow-y: auto;
+  overflow: visible;
   padding: 10px 15px;
 }
 .step {
-  position: relative;
-  opacity: 1;
+  position: static;
+  opacity: 1 !important;
   pointer-events: auto;
   display: block;
   text-align: center;
   padding: 10px 15px;
+  max-height: none !important;
+  overflow: visible !important;
 }
 .step:not(.active) {
   display: none;
@@ -246,10 +246,10 @@ h1 {
 .step p {
   font-size: 1rem;
   color: #555;
-  line-height: 1.5;
+  line-height: 1.6;
   word-wrap: break-word;
   white-space: normal;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 /* Step buttons */
 .step-controls {
@@ -293,7 +293,5 @@ h1 {
   }
   .steps-container {
     padding: 5px 10px;
-    min-height: auto;
-    max-height: none;
   }
 }
