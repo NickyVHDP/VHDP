@@ -99,6 +99,33 @@ window.addEventListener('scroll', () => {
   }
 });
 
+const introOverlay = document.getElementById('intro-overlay');
+const downArrow = document.getElementById('down-arrow');
+
+function hideIntro() {
+  introOverlay.classList.add('hidden');
+
+  // Wait for CSS transition end before enabling scroll
+  introOverlay.addEventListener('transitionend', () => {
+    document.body.style.overflow = 'auto';
+  }, { once: true });
+}
+
+// Disable scrolling initially
+document.body.style.overflow = 'hidden';
+
+// Allow hiding the intro on arrow click
+downArrow.addEventListener('click', hideIntro);
+
+// Also allow hiding intro if user scrolls or swipes down
+window.addEventListener('wheel', (e) => {
+  if (e.deltaY > 0) hideIntro();
+}, { once: true });
+
+window.addEventListener('touchmove', (e) => {
+  hideIntro();
+}, { once: true });
+
 function createTile(item) {
   const div = document.createElement("div");
   div.className = "tile";
@@ -163,5 +190,51 @@ function init() {
     else fee0Container.appendChild(tile);
   });
 }
+
+// Claim process animation code
+
+const claimSection = document.getElementById('claim-process');
+const steps = claimSection.querySelectorAll('.step');
+const prevBtn = document.getElementById('prev-step');
+const nextBtn = document.getElementById('next-step');
+let currentStep = 0;
+
+// Show claim process section only after scroll near bottom
+let claimSectionShown = false;
+window.addEventListener('scroll', () => {
+  const scrollPosition = window.scrollY + window.innerHeight;
+  const pageHeight = document.documentElement.scrollHeight;
+
+  if (!claimSectionShown && scrollPosition >= pageHeight - 100) {
+    claimSection.classList.remove('hidden');
+    claimSectionShown = true;
+  }
+});
+
+function updateStep() {
+  steps.forEach((step, index) => {
+    step.classList.toggle('active', index === currentStep);
+  });
+  prevBtn.disabled = currentStep === 0;
+  nextBtn.disabled = currentStep === steps.length - 1;
+}
+
+prevBtn.addEventListener('click', () => {
+  if (currentStep > 0) {
+    currentStep--;
+    updateStep();
+  }
+});
+
+nextBtn.addEventListener('click', () => {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    updateStep();
+  }
+});
+
+// Initialize steps and hide claim section by default
+claimSection.classList.add('hidden');
+updateStep();
 
 window.onload = init;
