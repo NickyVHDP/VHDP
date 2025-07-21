@@ -288,34 +288,35 @@ h1 {
   margin-bottom: 30px;
 }
 
+/* Updated Steps Container: Removed fixed height */
 .steps-container {
   position: relative;
-  height: 280px;
-  overflow: hidden;
+  /* height: 280px;  Removed fixed height */
+  overflow: visible;
 }
 
+/* Updated Step styling */
 .step {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  pointer-events: none;
-  display: flex;
+  position: relative; /* changed from absolute */
+  opacity: 1; /* always visible */
+  pointer-events: auto;
+  display: none; /* hide inactive */
   flex-direction: column;
   align-items: center;
   text-align: center;
   padding: 0 15px;
+  margin-bottom: 30px; /* spacing between steps */
+  transition: none; /* disable opacity transition */
 }
 
 .step.active {
-  opacity: 1;
-  pointer-events: auto;
+  display: flex; /* show only active step */
 }
 
 .step img {
-  width: 300px;
-  height: 180px;
-  object-fit: contain;
+  width: 100%; /* full width */
+  max-width: 320px; /* max width */
+  height: auto; /* preserve aspect ratio */
   margin-bottom: 15px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
