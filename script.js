@@ -61,71 +61,36 @@ const mainContent = document.getElementById("main-content");
 mainContent.style.display = "none";
 document.body.style.overflow = "hidden";
 
-let touchStartY = 0;
-
-// Create modal element
-const modal = document.createElement("div");
-modal.className = "modal";
-modal.id = "info-modal";
-modal.innerHTML = `
-  <div class="modal-content">
-    <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
-    <button id="modal-ok-btn">OK</button>
-  </div>
-`;
-document.body.appendChild(modal);
-
-const modalOkBtn = document.getElementById("modal-ok-btn");
-modalOkBtn.addEventListener("click", () => {
-  modal.classList.remove("show");
-  popupShown = true;
-});
-
-// Hide intro overlay & show main content
 function hideIntro() {
-  introOverlay.classList.add("hidden");
-  mainContent.style.display = "block";
-  introOverlay.addEventListener(
-    "transitionend",
-    () => {
-      document.body.style.overflow = "auto";
-    },
-    { once: true }
-  );
+  if (!introOverlay.classList.contains("hidden")) {
+    introOverlay.classList.add("hidden");
+    mainContent.style.display = "block";
+    introOverlay.addEventListener(
+      "transitionend",
+      () => {
+        document.body.style.overflow = "auto";
+      },
+      { once: true }
+    );
+    removeIntroListeners();
+  }
 }
 
-// Swipe down detection on overlay
-introOverlay.addEventListener("touchstart", (e) => {
-  touchStartY = e.touches[0].clientY;
-});
+function removeIntroListeners() {
+  window.removeEventListener("click", onFirstInteraction);
+  window.removeEventListener("touchstart", onFirstInteraction);
+  window.removeEventListener("keydown", onFirstInteraction);
+  window.removeEventListener("wheel", onFirstInteraction);
+}
 
-introOverlay.addEventListener("touchmove", (e) => {
-  const currentY = e.touches[0].clientY;
-  if (currentY - touchStartY > 50) {
-    hideIntro();
-  }
-});
-
-// Click or tap overlay to hide
-introOverlay.addEventListener("click", () => {
+function onFirstInteraction() {
   hideIntro();
-});
+}
 
-// Scroll or wheel triggers hide once
-window.addEventListener(
-  "wheel",
-  (e) => {
-    if (e.deltaY > 0) hideIntro();
-  },
-  { once: true }
-);
-window.addEventListener(
-  "touchmove",
-  () => {
-    hideIntro();
-  },
-  { once: true }
-);
+window.addEventListener("click", onFirstInteraction, { once: true, passive: true });
+window.addEventListener("touchstart", onFirstInteraction, { once: true, passive: true });
+window.addEventListener("keydown", onFirstInteraction, { once: true, passive: true });
+window.addEventListener("wheel", onFirstInteraction, { once: true, passive: true });
 
 // Create tile for each item with quantity controls
 function createTile(item) {
@@ -245,6 +210,24 @@ function updateTotal() {
   tryShowPopup();
 }
 
+// Modal popup setup for first selection
+const modal = document.createElement("div");
+modal.className = "modal";
+modal.id = "info-modal";
+modal.innerHTML = `
+  <div class="modal-content">
+    <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
+    <button id="modal-ok-btn">OK</button>
+  </div>
+`;
+document.body.appendChild(modal);
+
+const modalOkBtn = document.getElementById("modal-ok-btn");
+modalOkBtn.addEventListener("click", () => {
+  modal.classList.remove("show");
+  popupShown = true;
+});
+
 function tryShowPopup() {
   if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
     modal.classList.add("show");
@@ -264,6 +247,38 @@ function renderTiles() {
     else fee0Container.appendChild(tile);
   });
 }
+
+// Scroll modal popup HTML
+const scrollModalHTML = `
+  <div id="scroll-modal" class="modal">
+    <div class="modal-content">
+      <p>You will NEVER need to show receipts or proof of purchase anytime you need to make a claim.</p>
+      <button id="scroll-modal-ok-btn">OK</button>
+    </div>
+  </div>
+`;
+// Append scroll modal to body
+document.body.insertAdjacentHTML('beforeend', scrollModalHTML);
+
+const scrollModal = document.getElementById('scroll-modal');
+const scrollModalOkBtn = document.getElementById('scroll-modal-ok-btn');
+
+let scrollModalShown = false;
+
+scrollModalOkBtn.addEventListener('click', () => {
+  scrollModal.classList.remove('show');
+});
+
+// Show scroll modal once when user scrolls near bottom of page
+window.addEventListener('scroll', () => {
+  const scrollPosition = window.scrollY + window.innerHeight;
+  const pageHeight = document.documentElement.scrollHeight;
+
+  if (!scrollModalShown && scrollPosition >= pageHeight - 50) {
+    scrollModal.classList.add('show');
+    scrollModalShown = true;
+  }
+});
 
 // Claim step navigation
 const claimSection = document.getElementById("claim-process");
