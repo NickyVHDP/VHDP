@@ -7,18 +7,20 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Fullscreen Intro Overlay -->
+  <!-- Intro Overlay -->
   <div id="intro-overlay">
     <div class="intro-text">
       <p>Do you have any tech at home that doesn’t work or that’s broken?</p>
       <div id="down-arrow">&#8595;</div>
-      <div id="swipe-text">Swipe down or tap to continue</div>
+      <div id="swipe-text">Swipe down to continue</div>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="container" id="main-content">
     <h1>Verizon Home Device Protect</h1>
+    <!-- Added "What is VHDP?" button -->
+    <button id="what-btn" class="info-btn">What is VHDP?</button>
 
     <section class="category">
       <h2>$99 Service Fee</h2>
@@ -50,46 +52,39 @@
 
     <div class="cta">
       <p>Ready to protect your tech? Contact:</p>
-      <strong>Nicky McCracken<br /><a href="tel:2106431578" style="color:#0033cc;">210-643-1578</a></strong>
+      <strong>Nicky McCracken<br />210-643-1578</strong>
     </div>
 
-    <!-- Claim Process Section -->
-    <section id="claim-process" class="claim-process hidden">
+    <!-- Claim steps slider -->
+    <div class="claim-slider">
       <h2>How to Make a Claim</h2>
-      <div class="steps-container">
-
-        <div class="step active">
-          <img src="step1.jpg" alt="Visit Asurion Website" />
-          <h3>Step 1: Visit Asurion Claims</h3>
-          <p>Go to <a href="https://asurion.com/claims/" target="_blank" rel="noopener">Asurion.com/claims/</a> and follow the easy online steps to start your claim.</p>
-        </div>
-
-        <div class="step">
-          <img src="step2.jpg" alt="Check Item Eligibility" />
-          <h3>Step 2: Item Eligibility</h3>
-          <p>Bigger items are covered only under malfunction. Portable devices are covered for any issue, including accidental damage.</p>
-        </div>
-
-        <div class="step">
-          <img src="step3.jpg" alt="Repair or Replace" />
-          <h3>Step 3: Repair or Replace</h3>
-          <p>If your tech is unrepairable, Asurion will replace it with the newest version available.</p>
-        </div>
-
-        <div class="step">
-          <img src="step4.jpg" alt="Reimburse Discontinued Tech" />
-          <h3>Step 4: Discontinued Tech</h3>
-          <p>If your device is discontinued, you will be reimbursed via Venmo, PayPal, or a mailed check.</p>
-        </div>
-
+      <div class="step-slide" id="step-slide">
+        <!-- Step content will be injected via JavaScript -->
       </div>
-
-      <div class="step-controls">
+      <div class="slider-controls">
         <button id="prev-step" disabled>Previous</button>
         <button id="next-step">Next</button>
       </div>
-    </section>
+    </div>
+  </div>
 
+  <!-- "What is VHDP" Modal -->
+  <div id="what-modal" class="modal">
+    <div class="modal-content">
+      <h2>What is Verizon Home Device Protect?</h2>
+      <p>
+        Verizon Home Device Protect (VHDP) is a comprehensive protection plan
+        that covers an unlimited number of eligible home-tech devices. It’s the
+        last warranty you’ll need for your connected home products.
+      </p>
+      <ul>
+        <li>Protection for TVs, computers, gaming systems, smart-home devices and more.</li>
+        <li>Repairs or replacements even if the device is years old and you don’t have the receipt.</li>
+        <li>Annual claims allowance up to $5,000 and coverage for two residences.</li>
+        <li>24/7 tech support and two in-home tech visits per year.</li>
+      </ul>
+      <button id="what-ok-btn">OK</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
