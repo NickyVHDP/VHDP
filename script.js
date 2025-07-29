@@ -1,343 +1,282 @@
-const items = [
-  // $99 Service Fee items
-  { id: "99-1", name: "PCs (Desktops, Laptops, Tablets)", fee: 99, cost: 1200, icon: "🖥️" },
-  { id: "99-2", name: "TVs (LCD, Plasma or LED)", fee: 99, cost: 1000, icon: "📺" },
-  { id: "99-3", name: "Gaming Systems", fee: 99, cost: 500, icon: "🎮" },
-  { id: "99-4", name: "Printers", fee: 99, cost: 200, icon: "🖨️" },
-  { id: "99-5", name: "Home Routers (Mesh)", fee: 99, cost: 300, icon: "📡" },
-  { id: "99-6", name: "Home Theater System in a Box", fee: 99, cost: 600, icon: "🎵" },
-  { id: "99-7", name: "Bluetooth and Wi-Fi Enabled Speakers", fee: 99, cost: 250, icon: "🔊" },
-  { id: "99-8", name: "Virtual Reality Headsets", fee: 99, cost: 700, icon: "🕶️" },
-  { id: "99-9", name: "Augmented Reality Headsets", fee: 99, cost: 700, icon: "🕶️" },
-  { id: "99-10", name: "Smart Pet Collars", fee: 99, cost: 150, icon: "🐾" },
-  { id: "99-11", name: "Robotic Vacuums", fee: 99, cost: 400, icon: "🤖" },
-  { id: "99-12", name: "Robotic Mops", fee: 99, cost: 450, icon: "🤖" },
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  color: #333;
+  padding: 20px;
+  overflow-x: hidden;
+}
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+h1 {
+  color: #d9002d;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.category {
+  margin-bottom: 30px;
+}
+.category h2 {
+  border-bottom: 2px solid #d9002d;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(110px,1fr));
+  gap: 15px;
+}
+.tile {
+  background: #eee;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  user-select: none;
+  box-shadow: 0 0 0 2px transparent;
+}
+.tile span {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+.tile.selected {
+  background-color: #d9002d;
+  color: white;
+  box-shadow: 0 0 10px #d9002d;
+}
 
-  // $49 Service Fee items
-  { id: "49-1", name: "Smart Door Locks", fee: 49, cost: 200, icon: "🔒" },
-  { id: "49-2", name: "Smart Home Security Cameras", fee: 49, cost: 150, icon: "📷" },
-  { id: "49-3", name: "Smart Thermostats", fee: 49, cost: 180, icon: "🌡️" },
-  { id: "49-4", name: "Smart Video Doorbells", fee: 49, cost: 200, icon: "🔔" },
-  { id: "49-5", name: "Premium Audio Headsets", fee: 49, cost: 120, icon: "🎧" },
-  { id: "49-6", name: "Smart Watches", fee: 49, cost: 300, icon: "⌚" },
-  { id: "49-7", name: "Health and Fitness Bands", fee: 49, cost: 150, icon: "🏃" },
-  { id: "49-8", name: "Pet Snack & Food Dispensers", fee: 49, cost: 100, icon: "🍖" },
-  { id: "49-9", name: "Pet Auto Fetch Machines", fee: 49, cost: 150, icon: "🐕" },
-
-  // No Service Fee items
-  { id: "0-1", name: "Remote Control (Original Control Only)", fee: 0, cost: 50, icon: "🎮" },
-  { id: "0-2", name: "Game Controllers", fee: 0, cost: 60, icon: "🎮" },
-  { id: "0-3", name: "External PC Speakers (Wired or Wireless)", fee: 0, cost: 80, icon: "🔊" },
-  { id: "0-4", name: "Audio/Video Streaming Devices", fee: 0, cost: 70, icon: "📺" },
-  { id: "0-5", name: "Monitors", fee: 0, cost: 250, icon: "🖥️" },
-  { id: "0-6", name: "Keyboards", fee: 0, cost: 50, icon: "⌨️" },
-  { id: "0-7", name: "Mouse", fee: 0, cost: 40, icon: "🖱️" },
-  { id: "0-8", name: "Modems", fee: 0, cost: 80, icon: "📡" },
-  { id: "0-9", name: "DVD and Blu-Ray Players", fee: 0, cost: 100, icon: "📀" },
-  { id: "0-10", name: "Home Routers (Non-Mesh)", fee: 0, cost: 150, icon: "📡" },
-  { id: "0-11", name: "Smart Device Hubs", fee: 0, cost: 90, icon: "🏠" },
-  { id: "0-12", name: "Smart Light Dimmers", fee: 0, cost: 60, icon: "💡" },
-  { id: "0-13", name: "Smart Smoke and Carbon Monoxide Detectors", fee: 0, cost: 120, icon: "🔥" },
-  { id: "0-14", name: "Smart Alarm Contact Sensors", fee: 0, cost: 70, icon: "🔔" },
-  { id: "0-15", name: "Smart Alarm Flood and Freeze Sensors", fee: 0, cost: 80, icon: "❄️" },
-  { id: "0-16", name: "Smart Alarm Glassbreak Sensors", fee: 0, cost: 90, icon: "🔊" },
-  { id: "0-17", name: "Smart Alarm Keypads", fee: 0, cost: 100, icon: "🔢" },
-  { id: "0-18", name: "Smart Alarm Motion Detectors", fee: 0, cost: 110, icon: "📡" },
-  { id: "0-19", name: "Smart Alarm Panic Buttons", fee: 0, cost: 60, icon: "🚨" },
-  { id: "0-20", name: "Smart Alarm Range Extenders", fee: 0, cost: 70, icon: "📶" },
-  { id: "0-21", name: "Smart Blood Pressure Monitors", fee: 0, cost: 200, icon: "❤️" },
-  { id: "0-22", name: "Smart Personal Home Use EKG Monitors", fee: 0, cost: 300, icon: "💓" },
-  { id: "0-23", name: "Smart Pulse Oximeters", fee: 0, cost: 150, icon: "🩸" },
-];
-
-// Modal popup state
-let popupShown = false;
-
-// Intro overlay and main content elements
-const introOverlay = document.getElementById("intro-overlay");
-const mainContent = document.getElementById("main-content");
-
-// Disable scrolling initially and hide main content
-mainContent.style.display = "none";
-document.body.style.overflow = "hidden";
-
-function hideIntro() {
-  if (!introOverlay.classList.contains("hidden")) {
-    introOverlay.classList.add("hidden");
-    mainContent.style.display = "block";
-    introOverlay.addEventListener(
-      "transitionend",
-      () => {
-        document.body.style.overflow = "auto";
-      },
-      { once: true }
-    );
-    removeIntroListeners();
+/* Controls for quantity selection */
+.tile-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+.tile button {
+  background: #d9002d;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tile .quantity {
+  margin: 0 8px;
+  font-size: 1.1rem;
+  min-width: 20px;
+  text-align: center;
+}
+.total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 10px;
+}
+/* Info spot styling */
+.info-spot {
+  font-size: 1rem;
+  color: #555;
+  text-align: left;
+  margin-bottom: 30px;
+  font-style: normal;
+  user-select: none;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+.info-spot p {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+.info-spot ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0;
+}
+.info-spot li {
+  margin-bottom: 6px;
+}
+.cta {
+  background: #d9002d;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.2rem;
+  user-select: none;
+}
+/* Modal base styles */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right:0; bottom:0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.modal.show {
+  visibility: visible;
+  opacity: 1;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0,0,0,0.25);
+}
+.modal-content p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+.modal-content button {
+  background: #d9002d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+/* Intro Overlay */
+#intro-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 100000; /* above everything */
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  opacity: 1;
+  visibility: visible;
+}
+#intro-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.intro-text {
+  text-align: center;
+  font-size: 1.6rem;
+  color: #d9002d;
+  max-width: 300px;
+  user-select: none;
+}
+#down-arrow {
+  font-size: 3rem;
+  margin-top: 20px;
+  color: #d9002d;
+  cursor: pointer;
+  animation: bounce 1.5s infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(15px); }
+}
+#swipe-text {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: #d9002d;
+  font-weight: 600;
+  user-select: none;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
-
-function removeIntroListeners() {
-  window.removeEventListener("click", onFirstInteraction);
-  window.removeEventListener("touchstart", onFirstInteraction);
-  window.removeEventListener("keydown", onFirstInteraction);
-  window.removeEventListener("wheel", onFirstInteraction);
+/* Info button styling */
+.info-btn {
+  margin: 10px auto;
+  display: block;
+  background: #d9002d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-function onFirstInteraction() {
-  hideIntro();
+/* Claim steps slider */
+.claim-slider {
+  margin-top: 40px;
 }
-
-window.addEventListener("click", onFirstInteraction, { once: true, passive: true });
-window.addEventListener("touchstart", onFirstInteraction, { once: true, passive: true });
-window.addEventListener("keydown", onFirstInteraction, { once: true, passive: true });
-window.addEventListener("wheel", onFirstInteraction, { once: true, passive: true });
-
-// Create tile for each item with quantity controls
-function createTile(item) {
-  const div = document.createElement("div");
-  div.className = "tile";
-  div.dataset.cost = item.cost;
-  div.dataset.id = item.id;
-  div.title = item.name;
-  div.tabIndex = 0;
-
-  const iconSpan = document.createElement("span");
-  iconSpan.textContent = item.icon;
-  iconSpan.style.fontSize = "36px";
-  iconSpan.style.display = "block";
-  iconSpan.style.marginBottom = "8px";
-
-  const nameSpan = document.createElement("span");
-  nameSpan.textContent = item.name;
-
-  // Quantity controls container
-  const quantityControls = document.createElement("div");
-  quantityControls.className = "quantity-controls";
-
-  const minusBtn = document.createElement("button");
-  minusBtn.type = "button";
-  minusBtn.textContent = "−"; // minus sign
-  const plusBtn = document.createElement("button");
-  plusBtn.type = "button";
-  plusBtn.textContent = "+";
-
-  const quantityValue = document.createElement("span");
-  quantityValue.className = "quantity-value";
-  quantityValue.textContent = "0";
-
-  quantityControls.appendChild(minusBtn);
-  quantityControls.appendChild(quantityValue);
-  quantityControls.appendChild(plusBtn);
-
-  div.appendChild(iconSpan);
-  div.appendChild(nameSpan);
-  div.appendChild(quantityControls);
-
-  // Handle quantity increment/decrement
-  minusBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    let qty = parseInt(quantityValue.textContent, 10);
-    if (qty > 0) qty--;
-    quantityValue.textContent = qty;
-    if (qty === 0) div.classList.remove("selected");
-    else div.classList.add("selected");
-    updateTotal();
-  });
-
-  plusBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    let qty = parseInt(quantityValue.textContent, 10);
-    qty++;
-    quantityValue.textContent = qty;
-    if (qty > 0) div.classList.add("selected");
-    updateTotal();
-  });
-
-  // Also toggle selection on tile click: add 1 if currently 0, else remove all
-  div.addEventListener("click", () => {
-    let qty = parseInt(quantityValue.textContent, 10);
-    if (qty === 0) {
-      quantityValue.textContent = "1";
-      div.classList.add("selected");
-    } else {
-      quantityValue.textContent = "0";
-      div.classList.remove("selected");
-    }
-    updateTotal();
-  });
-
-  // Keyboard support for accessibility
-  div.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      let qty = parseInt(quantityValue.textContent, 10);
-      if (qty === 0) {
-        quantityValue.textContent = "1";
-        div.classList.add("selected");
-      } else {
-        quantityValue.textContent = "0";
-        div.classList.remove("selected");
-      }
-      updateTotal();
-    }
-  });
-
-  return div;
+.claim-slider h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #d9002d;
 }
-
-// Update total cost based on quantities
-function updateTotal() {
-  const tiles = document.querySelectorAll(".tile");
-  let total = 0;
-  tiles.forEach((tile) => {
-    if (tile.classList.contains("selected")) {
-      const qty = parseInt(tile.querySelector(".quantity-value").textContent, 10);
-      const cost = parseInt(tile.dataset.cost, 10);
-      total += qty * cost;
-    }
-  });
-  document.getElementById("grand-total").textContent = "$" + total.toLocaleString();
-
-  // Show or hide claim section depending on total
-  const claimSection = document.getElementById("claim-process");
-  if (total > 0) {
-    claimSection.classList.remove("hidden");
-  } else {
-    claimSection.classList.add("hidden");
-  }
-
-  // Show modal once on first selection
-  tryShowPopup();
+.step-slide {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 10px;
 }
-
-// Modal popup setup for first selection
-const modal = document.createElement("div");
-modal.className = "modal";
-modal.id = "info-modal";
-modal.innerHTML = `
-  <div class="modal-content">
-    <p>Did you know it does not matter if your tech is 1 year old or 20 years old? It’s Covered!</p>
-    <button id="modal-ok-btn">OK</button>
-  </div>
-`;
-document.body.appendChild(modal);
-
-const modalOkBtn = document.getElementById("modal-ok-btn");
-modalOkBtn.addEventListener("click", () => {
-  modal.classList.remove("show");
-  popupShown = true;
-});
-
-function tryShowPopup() {
-  if (!popupShown && document.querySelectorAll(".tile.selected").length > 0) {
-    modal.classList.add("show");
-  }
+.step-slide img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
-
-// Render all items in correct containers
-function renderTiles() {
-  const fee99Container = document.getElementById("fee-99");
-  const fee49Container = document.getElementById("fee-49");
-  const fee0Container = document.getElementById("fee-0");
-
-  items.forEach((item) => {
-    const tile = createTile(item);
-    if (item.fee === 99) fee99Container.appendChild(tile);
-    else if (item.fee === 49) fee49Container.appendChild(tile);
-    else fee0Container.appendChild(tile);
-  });
+.step-slide h3 {
+  color: #d9002d;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
 }
-
-// Scroll modal popup HTML
-const scrollModalHTML = `
-  <div id="scroll-modal" class="modal">
-    <div class="modal-content">
-      <p>You will NEVER need to show receipts or proof of purchase anytime you need to make a claim.</p>
-      <button id="scroll-modal-ok-btn">OK</button>
-    </div>
-  </div>
-`;
-document.body.insertAdjacentHTML('beforeend', scrollModalHTML);
-
-const scrollModal = document.getElementById('scroll-modal');
-const scrollModalOkBtn = document.getElementById('scroll-modal-ok-btn');
-
-let scrollModalShown = false;
-
-scrollModalOkBtn.addEventListener('click', () => {
-  scrollModal.classList.remove('show');
-});
-
-function checkScrollPosition() {
-  const scrollPosition = window.scrollY + window.innerHeight;
-  const pageHeight = document.documentElement.scrollHeight;
-
-  if (!scrollModalShown && scrollPosition >= pageHeight - 150) {
-    scrollModal.classList.add('show');
-    scrollModalShown = true;
-    removeScrollListeners();
-  }
+.step-slide p {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.4;
 }
-
-function removeScrollListeners() {
-  window.removeEventListener('scroll', onScrollOrTouch);
-  window.removeEventListener('touchmove', onScrollOrTouch);
+.slider-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
-
-function onScrollOrTouch() {
-  checkScrollPosition();
+.slider-controls button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
 }
-
-window.addEventListener('scroll', onScrollOrTouch, { passive: true });
-window.addEventListener('touchmove', onScrollOrTouch, { passive: true });
-
-// Fallback: show popup after 8 seconds if user hasn't scrolled near bottom yet
-setTimeout(() => {
-  if (!scrollModalShown) {
-    scrollModal.classList.add('show');
-    scrollModalShown = true;
-    removeScrollListeners();
-  }
-}, 8000);
-
-// Claim step navigation
-const claimSection = document.getElementById("claim-process");
-const steps = claimSection.querySelectorAll(".step");
-const prevBtn = document.getElementById("prev-step");
-const nextBtn = document.getElementById("next-step");
-let currentStep = 0;
-
-function updateSteps() {
-  steps.forEach((step, idx) => {
-    step.classList.toggle("active", idx === currentStep);
-  });
-  prevBtn.disabled = currentStep === 0;
-  nextBtn.disabled = currentStep === steps.length - 1;
+#prev-step {
+  background: #ccc;
+  color: #333;
 }
-
-prevBtn.addEventListener("click", () => {
-  if (currentStep > 0) {
-    currentStep--;
-    updateSteps();
-  }
-});
-nextBtn.addEventListener("click", () => {
-  if (currentStep < steps.length - 1) {
-    currentStep++;
-    updateSteps();
-  }
-});
-
-// Hide claim section initially
-claimSection.classList.add("hidden");
-updateSteps();
-
-// Initialize app
-function init() {
-  renderTiles();
-  updateTotal();
-  // Hide main content initially behind intro overlay
-  mainContent.style.display = "none";
+#next-step {
+  background: #d9002d;
+  color: #fff;
 }
-
-window.onload = init;
